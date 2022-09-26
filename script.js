@@ -9,22 +9,29 @@ window.addEventListener("load", function () {
   class Particle {
     constructor(effect, x, y, color) {
       this.effect = effect;
-      this.x =x;
+      this.x = Math.random() * this.effect.width;
       this.y = y;
       this.originX = Math.floor(x);
       this.originY = Math.floor(y);
       this.color = color;
-      this.size = 10;
+      this.size = this.effect.gap;
       // velocity
-      this.vx = Math.random()*2-1;
-      this.vy =  Math.random()*2-1;
+      this.vx = 0;
+      this.vy = 0;
+      this.ease = 0.2;
     }
     draw(context) {
+      context.fillStyle = this.color;
       context.fillRect(this.x, this.y, this.size, this.size);
     }
     update() {
-      this.x += this.vx;
-      this.y += this.vy;
+      this.x += (this.originX - this.x) * this.ease;
+      this.y += (this.originY - this.y) * this.ease;
+    }
+    warp() {
+      this.x = Math.random() * this.effect.width;
+      this.y = Math.random() * this.effect.height;
+      this.ease = 0.05;
     }
   }
   class Effect {
@@ -38,7 +45,7 @@ window.addEventListener("load", function () {
       this.x = this.centerX - this.image.width * 0.5;
       this.y = this.centerY - this.image.height * 0.5;
       // higher gap bigger performance but more pixelated
-      this.gap = 6;
+      this.gap = 1;
     }
     init(context) {
       // for (let i = 0; i < 100; i++) {
@@ -67,6 +74,9 @@ window.addEventListener("load", function () {
     update() {
       this.particleArray.forEach((particle) => particle.update());
     }
+    warp() {
+      this.particleArray.forEach((particle) => particle.warp());
+    }
   }
   const effect = new Effect(canvas.width, canvas.height);
   effect.init(ctx);
@@ -81,6 +91,13 @@ window.addEventListener("load", function () {
     // usually 60fps
   }
   animate();
+
+  // warpButton
+
+  const warpButton = document.getElementById("warpButton");
+  warpButton.addEventListener("click", function () {
+    effect.warp();
+  });
 });
 
 // fillRect is built in
